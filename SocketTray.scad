@@ -1,12 +1,13 @@
 // Parameters that define the Socket Tray
-diameter = [28, 26, 24, 21,19]; // Diameter of each of the Sockets
-length = [64,64,64,62,62]; // Length of each of the Sockets
+diameter = [29.8,27.8,25.6,24.0,22.0,19.9,18.6,16.8,16.6]; // Diameter of each of the Sockets
+length = [64,64,64,64,64,64,64,64,64]; // Length of each of the Sockets
 n_sockets = len(diameter); //assert len(diameter)==len(length)
 spacing = 1; // Intersocket Spacing
 magnet_diameter = 9.525;
 magnet_height = 3.175;
 bottom = magnet_height+spacing; // Minimum bottom Spacing
 fn = 40;
+fudge = 1/cos(180/fn); 
 
 // Useful Functions that don't appear to be available in OpenSCAD
     // Sum a Vector
@@ -48,7 +49,7 @@ module socket_holder(diameter,length) {
         translate([diameter/2.,0,0]) 
         rotate(-90,[1,0,0])
         translate([0,-diameter/2.,0])
-        cylinder(h=length, r=diameter/2.,$fn=50);
+        cylinder(h=length, r=diameter/2.*fudge,$fn=50);
         }  
     }
 
@@ -59,10 +60,10 @@ module socket_holder(diameter,next_diameter,length,spacing=0,bottom=0,magnets=fa
         rotate([-90,0,0])
         // I don't understand why the second term needs minus sign. Translation must happen before rotation
         translate([diameter/2+spacing,-diameter/2-bottom,spacing])
-        cylinder(h=length, r=diameter/2,$fn=50);
+        cylinder(h=length, r=diameter/2.*fudge,$fn=50);
         if (magnets) 
-        translate([diameter/2+spacing,length/2+spacing,spacing])
-        cylinder(h=magnet_height*1.5, r=magnet_diameter/2,$fn=40);
+        translate([diameter/2.*fudge+spacing,length/2+spacing,spacing])
+        cylinder(h=magnet_height*1.5, r=magnet_diameter/2.*fudge,$fn=40);
         }  
     }
 
