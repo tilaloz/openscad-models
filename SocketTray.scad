@@ -1,8 +1,10 @@
 // Parameters that define the Socket Tray
-diameter = [29.8,27.8,25.6,24.0,22.0,19.9,18.6,16.8,16.6]*1.02; // Diameter of each of the Sockets
-length = [64,64,64,64,64,60,60,58,56]; // Length of each of the Sockets
+diameter2 = [29.8,27.8,25.6,24.0,22.0,19.9,18.6,16.8,16.6]; // Diameter of each of the Sockets
+diameter = [for (d=diameter2) d*1.02+0.3];
+echo(diameter);
+length = [64,64,64,64,64,64,64,64,64]; // Length of each of the Sockets
 n_sockets = len(diameter); //assert len(diameter)==len(length)
-spacing = 2; // Intersocket Spacing
+spacing = 1 ; // Intersocket Spacing
   magnet_diameter = 9.525;
 magnet_height = 3.175;
 bottom = magnet_height+spacing; // Minimum bottom Spacing
@@ -20,7 +22,7 @@ fudge = 1/cos(180/fn);
    cylinder(h=height,r=radius*fudge,$fn=fn);}
 
 S = sum(diameter);
-
+ 
 left_edges = [for (i = [0:n_sockets]) cumsum(diameter,end=i)];
 echo(left_edges);
 
@@ -74,13 +76,13 @@ module socket_holder(diameter,next_diameter,length,spacing=0,bottom=0,magnets=fa
         }  
     }
 
-module socket_holder_v2(diameter,max_diameter,length,max_length,spacing=0,bottom=0) {
+module socket_holder_v2(diameter,max_diameter,length,max_length,min_length,spacing=0,bottom=0) {
     difference(){
         // First the core cube
-        cube([diameter+2*spacing,max_diameter+2*spacing+magnet_height,max_length/2.0]); 
+        cube([diameter+2*spacing,max_diameter+2*spacing+magnet_height,max_length+2*spacing-min_length/2.]); 
 
         // Subtract the cylinder for the socket
-        translate([diameter/2.+spacing,diameter/2.+spacing,max_length-length+2*spacing])
+        translate([diameter/2.+spacing,diameter/2.+spacing,max_length+2*spacing-length])
         cylinder(h=length, r=diameter/2.*fudge,$fn=50);
         // Subtract a viewing window for the socket
         translate([0,0,max_length-length+2*spacing])
@@ -98,8 +100,8 @@ module socket_holder_v2(diameter,max_diameter,length,max_length,spacing=0,bottom
 
     for (i=[0:n_sockets-1]){
         echo(i,diameter[i],max(diameter),length[i],max(length),spacing);
-        translate([spacing*(i) + left_edges[i],0,0])
-        socket_holder_v2(diameter[i],max(diameter),length[i],max(length),spacing,bottom); 
+        translate([2*spacing*(i) + left_edges[i],0,0])
+        socket_holder_v2(diameter[i],max(diameter),length[i],max(length),min(length),spacing,bottom); 
         }
         
         
