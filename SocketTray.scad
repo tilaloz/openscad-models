@@ -1,9 +1,9 @@
 // Parameters that define the Socket Tray
-diameter = [29.8,27.8,25.6,24.0,22.0,19.9,18.6,16.8,16.6]; // Diameter of each of the Sockets
-length = [64,64,64,64,64,64,64,64,64]; // Length of each of the Sockets
+diameter = [29.8,27.8,25.6,24.0,22.0,19.9,18.6,16.8,16.6]*1.02; // Diameter of each of the Sockets
+length = [64,64,64,64,64,60,60,58,56]; // Length of each of the Sockets
 n_sockets = len(diameter); //assert len(diameter)==len(length)
-spacing = 1; // Intersocket Spacing
-magnet_diameter = 9.525;
+spacing = 2; // Intersocket Spacing
+  magnet_diameter = 9.525;
 magnet_height = 3.175;
 bottom = magnet_height+spacing; // Minimum bottom Spacing
 fn = 40;
@@ -53,25 +53,55 @@ module socket_holder(diameter,length) {
         }  
     }
 
+module socket(h,r) {
+    difference(){
+        cylinder(h=h, r=r*fudge,$fn=50);
+        cylinder(h=spacing, r=3.0,$fn=50);
+        }
+    }
+     
 module socket_holder(diameter,next_diameter,length,spacing=0,bottom=0,magnets=false) {
 
     difference(){
-        sloped_block(diameter+2*spacing,length+2*spacing,bottom+diameter/2,bottom+(next_diameter==undef ? diameter/2 :next_diameter/2)); 
+        sloped_block(diameter+2*spacing,length+spacing,bottom+diameter/2,bottom+(next_diameter==undef ? diameter/2 :next_diameter/2)); 
         rotate([-90,0,0])
         // I don't understand why the second term needs minus sign. Translation must happen before rotation
         translate([diameter/2+spacing,-diameter/2-bottom,spacing])
-        cylinder(h=length, r=diameter/2.*fudge,$fn=50);
+        socket(h=length, r=diameter/2.*fudge);
         if (magnets) 
         translate([diameter/2.*fudge+spacing,length/2+spacing,spacing])
         cylinder(h=magnet_height*1.5, r=magnet_diameter/2.*fudge,$fn=40);
         }  
     }
 
+module socket_holder_v2(diameter,max_diameter,length,max_length,spacing=0,bottom=0) {
+    difference(){
+        // First the core cube
+        cube([diameter+2*spacing,max_diameter+2*spacing+magnet_height,max_length/2.0]); 
+
+        // Subtract the cylinder for the socket
+        translate([diameter/2.+spacing,diameter/2.+spacing,max_length-length+2*spacing])
+        cylinder(h=length, r=diameter/2.*fudge,$fn=50);
+        // Subtract a viewing window for the socket
+        translate([0,0,max_length-length+2*spacing])
+        rotate(45,[1,0,0])
+        cube([diameter+2*spacing,10,10]);
+        //Make room for magnets in the back. 
+        translate([diameter/2.+spacing,max_diameter+2*spacing+magnet_height,max_length/4.0])
+        rotate(90,[1,0,0])
+        cylinder(h=magnet_height*1.1, r=magnet_diameter/2.*fudge+0.2,$fn=40);
+        }
+
+
+    }
+
 
     for (i=[0:n_sockets-1]){
-        translate([spacing*(i+1) + left_edges[i],0,0])
-        socket_holder(diameter[i],diameter[i+1],length[i],spacing,bottom,magnets=true); 
+        echo(i,diameter[i],max(diameter),length[i],max(length),spacing);
+        translate([spacing*(i) + left_edges[i],0,0])
+        socket_holder_v2(diameter[i],max(diameter),length[i],max(length),spacing,bottom); 
         }
+        
         
         //I got the Magnet holes working. Can't figure out why Cylinder_outer doesn't work when doing differences. Need to just put in some realistic sizes and try one now. 
         
