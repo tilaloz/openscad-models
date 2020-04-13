@@ -37,12 +37,17 @@ len2 = 22.2; //Consider shortening for faster Print time
 meas_dia = [[dia1,dia1,dia1,dia2,dia1,dia1],
             [dia1*1.2,dia1,dia2,dia2,dia1,dia1],
             [dia1,undef,dia1,dia2,dia1,dia1],
-            [dia1,dia1,dia1,dia2,dia1,undef],
-            [dia2,dia2,dia2,dia2,undef,dia2],
-            [dia2,dia2,dia2,dia2,dia2,dia2]];
-meas_length = [for (row=meas_dia) [for (item=row) item>=dia1 ? len1:len2 ]];
+            [dia1,dia1,10,dia2,dia1,undef],
+            [dia2,dia2,dia2,dia2,2,undef],
+            [dia2,dia2,dia2,undef,undef,undef]];
+meas_length = [[len1,len1,len1,len2,len1,len1],
+            [len1*1.2,len1,len2,len2,len1,len1],
+            [len1,undef,len1,len1,len1,len1],
+            [len1,len1,10,len1,len1,undef],
+            [len2,len1,len2*1.4,len2,30,len2],
+            [len2,len2,len2,len2,len2*0.8,len2]];
 
-module cylinder_grid(meas_dia,meas_length,scale=1.02,bias=0.40){
+module cylinder_grid(meas_dia,meas_length,scale=1.02,bias=0.40,min_grid_radius=0){
     meas_dia_with_margin = id_margin(meas_dia,scale,bias);
     diameter = [ for (d=flatten(meas_dia_with_margin)) d] ;
     length = [ for (d=flatten(meas_length)) d] ;
@@ -50,8 +55,11 @@ module cylinder_grid(meas_dia,meas_length,scale=1.02,bias=0.40){
     n = max([for (row=meas_dia) len(row)]);
     m = len(meas_dia);
     
-    grid_x_spacing = [for (row=meas_dia_with_margin) (max(row) + wall_thickness)/2.0 ];
-    grid_y_spacing = [for (item=col_max(meas_dia_with_margin)) (item + wall_thickness)/2.0];
+    grid_x_spacing = [for (row=meas_dia_with_margin) 
+        (max(row) + wall_thickness)/2.0 > min_grid_radius 
+            ? (max(row) + wall_thickness)/2.0 : min_grid_radius];
+    grid_y_spacing = [for (item=col_max(meas_dia_with_margin)) 
+        (item + wall_thickness)/2.0 > min_grid_radius ? (item + wall_thickness)/2.0 : min_grid_radius ];
     
     grid_x = cumsum([0, for (i=[1:m-1]) grid_x_spacing[i]+grid_x_spacing[i-1]]);    
     grid_y = cumsum([0, for (j=[1:n-1]) grid_y_spacing[j]+grid_y_spacing[j-1]]);    
@@ -69,7 +77,7 @@ module cylinder_grid(meas_dia,meas_length,scale=1.02,bias=0.40){
     assert(len(diameter)==len(length),"Must have equal length diameter and length vectors");
        
     
-    module connected_cylinder(inner_radius,height,hole_depth,wall_thickness,
+    module connected_cylinder(inner_radius,hole_depth,wall_thickness,
                                 grid_x_spacing,grid_y_spacing,connected){
         difference(){
             union(){
@@ -94,7 +102,7 @@ module cylinder_grid(meas_dia,meas_length,scale=1.02,bias=0.40){
         for (j=[0:n-1]){
             if (diameter[n*i+j] != undef){
                 translate([grid_x[i],grid_y[j],0])     
-                connected_cylinder(diameter[n*i+j]/2.0,max_length,length[n*i+j],wall_thickness,
+                connected_cylinder(diameter[n*i+j]/2.0,length[n*i+j],wall_thickness,
                 grid_x_spacing[i],grid_y_spacing[j],
                 [diameter[n*(i+1)+j]!=undef && (i<m-1), // Make sure +x neighbor exits and the we aren't off the grid
                  diameter[n*i+j+1]!=undef && (j<n-1),   // Make sure +y neighbor exits and the we aren't off the grid
