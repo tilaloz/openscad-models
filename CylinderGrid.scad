@@ -18,7 +18,10 @@ function flatten(l) = [ for (a = l) for (b = a) b ] ;
 function id_margin(id,scale,bias) = [for (row=id) [for (item=row) scale*item + bias ]];
 
 //Max that works reliably regardless of whether or not there is an undef at the beginning
-function my_max(a) = max([for (i=a) if (is_num(i)) i]); 
+function my_max(a) = max([for (i=a) if (is_num(i)) i]);
+//Min that works reliably regardless of whether or not there is an undef at the beginning
+function my_min(a) = min([for (i=a) if (is_num(i)) i]); 
+ 
 // Find the max of each "column" in a vector of vectors
 function col_max(a) = [for (i=[0:len(a[0])-1]) my_max([for (row=a) if (row[i]!=undef) row[i]]) ];
 
@@ -71,8 +74,8 @@ module cylinder_grid(meas_dia,meas_length,scale=1.02,bias=0.40,min_grid_radius=0
     
     
     // Calculate some results from Cylinder Grid
-    max_length = max(length);
-    min_length = min(length);
+    max_length = my_max(length);
+    min_length = my_min(length);
     
     echo(len(diameter),len(length));
     assert(len(diameter)==len(length),"Must have equal length diameter and length vectors");
