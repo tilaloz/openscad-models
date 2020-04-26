@@ -24,6 +24,16 @@ module wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,heigh
             translate([-wrench_length[1]/2,-handle_depth[1]/2,0])
             cube([wrench_length[1],handle_depth[1],minimum_thickness]);
             }
+        for (i=[1:n_wrench]){
+            translate([-wrench_length[1]/2,-handle_depth[1]/2,3*i*minimum_thickness])
+            cube([wrench_length[1],handle_depth[1],handle_depth[1]]);
+            
+            }
+        for (i=[1:n_wrench]){
+            translate([-wrench_length[1]/2,-handle_depth[1]/2,3*i*minimum_thickness])
+            cube([wrench_length[1],handle_depth[1],handle_depth[1]]);
+            
+            }
     }
 
 }
