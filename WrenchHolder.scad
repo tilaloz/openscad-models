@@ -9,16 +9,17 @@ minimum_thickness = 5;
 function sum(v, i = 0, r = 0) = i < len(v) ? sum(v, i + 1, r + v[i]) : r;
 
 
-module wrench_block(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){    
+module wrench_block(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){
     linear_extrude(height,
     scale=[wrench_length[1]/wrench_length[0],1])
     square([wrench_length[0],handle_depth[0]+minimum_thickness], center=true);
 }
 
-module wrench_block_1(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){    
-    rotate([90,0,0])
-    linear_extrude(handle_depth[0]+minimum_thickness)
-    polygon([[wrench_length[0]/2,0],[-wrench_length[0]/2,0],[-wrench_length[1]/2,height],[wrench_length[1]/2,height]]);
+module wrench_block_1(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){
+        translate([0,(handle_depth[0]+minimum_thickness)*.5,0])
+        rotate([90,0,0])
+        linear_extrude(handle_depth[0]+minimum_thickness)
+        polygon([[wrench_length[0]/2,0],[-wrench_length[0]/2,0],[-wrench_length[1]/2,height],[wrench_length[1]/2,height]]);
     }
 
 module wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){
@@ -34,7 +35,7 @@ module wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,heigh
             translate([-wrench_length[1]/2,-handle_depth[1]/2,2*i*minimum_thickness])
             rotate([-30,0,0])
             cube([wrench_length[1],handle_depth[1],5.0]);
-            
+
             }
     }
   }
@@ -42,4 +43,3 @@ module wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,heigh
 
 height=(n_wrench+1)*minimum_thickness+n_wrench*sum(handle_thickness)/2.0;
 wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,height);
-  
