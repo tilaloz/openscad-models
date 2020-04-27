@@ -15,6 +15,11 @@ module wrench_block(wrench_length,handle_depth,n_wrench,minimum_thickness,height
     square([wrench_length[0],handle_depth[0]+minimum_thickness], center=true);
 }
 
+module wrench_block_1(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){    
+    rotate([90,0,0])
+    linear_extrude(handle_depth[0]+minimum_thickness)
+    polygon([[wrench_length[0]/2,0],[-wrench_length[0]/2,0],[-wrench_length[1]/2,height],[wrench_length[1]/2,height]]);
+    }
 
 module wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,height,handle_thickness){
     difference(){
@@ -34,5 +39,7 @@ module wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,heigh
     }
   }
 
+
 height=(n_wrench+1)*minimum_thickness+n_wrench*sum(handle_thickness)/2.0;
 wrench_holder(wrench_length,handle_depth,n_wrench,minimum_thickness,height);
+  
